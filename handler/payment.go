@@ -7,10 +7,10 @@ import (
 
 type PaymentHandler struct {
 	paymentController interfaces.PaymentController
-	router            *gin.Engine
+	router            *gin.RouterGroup
 }
 
-func NewPaymentHandler(paymentController interfaces.PaymentController, router *gin.Engine) *PaymentHandler {
+func NewPaymentHandler(paymentController interfaces.PaymentController, router *gin.RouterGroup) *PaymentHandler {
 	return &PaymentHandler{
 		paymentController: paymentController,
 		router:            router,
@@ -19,7 +19,6 @@ func NewPaymentHandler(paymentController interfaces.PaymentController, router *g
 
 func (h *PaymentHandler) SetRouters() {
 	h.router.GET("/:id", h.GetPayment)
-
 	h.router.POST("/", h.CreatePayment)
 }
 

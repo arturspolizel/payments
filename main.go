@@ -15,10 +15,11 @@ func main() {
 	paymentRepo := model.NewPaymentRepository("localhost", "postgres", "123", "payments", "5432")
 	paymentController := controller.NewPaymentController(paymentRepo)
 
-	router := gin.Default()
+	engine := gin.Default()
+	router := engine.Group("/payment")
 
 	paymentHandler := handler.NewPaymentHandler(paymentController, router)
 	paymentHandler.SetRouters()
 
-	router.Run(":8080")
+	engine.Run(":8080")
 }
