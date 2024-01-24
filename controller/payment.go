@@ -21,6 +21,7 @@ func (c *PaymentController) Get(id uint) model.Payment {
 }
 
 func (c *PaymentController) Create(payment model.Payment) uint {
+	payment.Total = payment.Amount + payment.Tips
 	id := c.paymentRepository.Create(payment)
 	return id
 }
