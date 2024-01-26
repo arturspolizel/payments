@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -15,11 +17,15 @@ func NewPaymentRepository(host, user, password, databaseName, port string) *Paym
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, databaseName, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not connect to database")
+	}
+
 	// Migrate the schema
-	db.AutoMigrate(&Payment{})
+	err = db.AutoMigrate(&Payment{})
 
 	if err != nil {
-		//log error, fail
+		log.Fatal().Err(err).Msg("Could not migrate database")
 	}
 
 	return &PaymentRepository{

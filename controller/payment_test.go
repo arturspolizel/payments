@@ -34,6 +34,7 @@ var paymentWithTotal = model.Payment{
 }
 
 func TestGet(t *testing.T) {
+
 	assert := assert.New(t)
 	mockRepo := mocks.NewPaymentRepository(t)
 
