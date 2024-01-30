@@ -3,7 +3,7 @@ package handler
 import "github.com/arturspolizel/payments/model"
 
 type PaymentCreateRequest struct {
-	MerchantId string         `json:"merchantId" binding:"required"`
+	MerchantId uint           `json:"merchantId" binding:"required"`
 	Amount     int            `json:"amount" binding:"required"`
 	Tips       int            `json:"tips" binding:"required"`
 	Currency   model.Currency `json:"currency" binding:"required"`

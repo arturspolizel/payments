@@ -10,7 +10,7 @@ import (
 
 var mockedPayment = model.Payment{
 	ID:         1,
-	MerchantId: "1",
+	MerchantId: uint(1),
 	Amount:     100,
 	Tips:       100,
 	Total:      200,
@@ -18,7 +18,7 @@ var mockedPayment = model.Payment{
 }
 
 var paymentFromRequest = model.Payment{
-	MerchantId: "1",
+	MerchantId: uint(1),
 	Amount:     100,
 	Tips:       100,
 	Total:      200,
@@ -26,7 +26,7 @@ var paymentFromRequest = model.Payment{
 }
 
 var paymentWithTotal = model.Payment{
-	MerchantId: "1",
+	MerchantId: uint(1),
 	Amount:     100,
 	Tips:       100,
 	Total:      200,

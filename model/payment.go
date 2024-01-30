@@ -3,14 +3,17 @@ package model
 import "time"
 
 type Payment struct {
-	ID         uint      `json:"id"`
-	MerchantId string    `json:"merchantId"`
-	Amount     int       `json:"amount"`
-	Tips       int       `json:"tips"`
-	Total      int       `json:"total"`
-	Currency   Currency  `json:"currency"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID         uint          `json:"id"`
+	MerchantId uint          `json:"merchantId"`
+	Merchant   Merchant      `json:"merchant"`
+	Amount     int           `json:"amount"`
+	Tips       int           `json:"tips"`
+	Total      int           `json:"total"`
+	Status     PaymentStatus `json:"paymentStatus"`
+	Method     PaymentMethod `json:"paymentMethod"`
+	Currency   Currency      `json:"currency"`
+	CreatedAt  time.Time     `json:"createdAt"`
+	UpdatedAt  time.Time     `json:"updatedAt"`
 }
 
 type Currency string
@@ -29,4 +32,40 @@ var currencies = map[Currency]bool{
 
 func (c Currency) Validate() bool {
 	return currencies[c]
+}
+
+type PaymentStatus string
+
+const (
+	Authorized PaymentStatus = "authorized"
+	Captured   PaymentStatus = "captured"
+	Void       PaymentStatus = "void"
+)
+
+var paymentStatuses = map[PaymentStatus]bool{
+	Authorized: true,
+	Captured:   true,
+	Void:       true,
+}
+
+func (ps PaymentStatus) Validate() bool {
+	return paymentStatuses[ps]
+}
+
+type PaymentMethod string
+
+const (
+	CardPresent    PaymentMethod = "cardpresent"
+	CardNotPresent PaymentMethod = "cardnotpresent"
+	Cash           PaymentMethod = "cash"
+)
+
+var paymentMethods = map[PaymentMethod]bool{
+	CardPresent:    true,
+	CardNotPresent: true,
+	Cash:           true,
+}
+
+func (pm PaymentMethod) Validate() bool {
+	return paymentMethods[pm]
 }

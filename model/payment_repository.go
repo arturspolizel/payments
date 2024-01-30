@@ -34,7 +34,10 @@ func NewPaymentRepository(host, user, password, databaseName, port string) *Paym
 }
 
 func (r *PaymentRepository) Get(id uint) Payment {
-	return Payment{}
+	payment := Payment{}
+	r.database.Select(&payment, id)
+
+	return payment
 }
 
 func (r *PaymentRepository) Create(payment Payment) uint {
