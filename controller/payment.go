@@ -15,13 +15,13 @@ func NewPaymentController(paymentRepository interfaces.PaymentRepository) *Payme
 	}
 }
 
-func (c *PaymentController) Get(id uint) model.Payment {
-	payment := c.paymentRepository.Get(id)
-	return payment
+func (c *PaymentController) Get(id uint) (model.Payment, error) {
+	payment, err := c.paymentRepository.Get(id)
+	return payment, err
 }
 
-func (c *PaymentController) Create(payment model.Payment) uint {
+func (c *PaymentController) Create(payment model.Payment) (uint, error) {
 	payment.Total = payment.Amount + payment.Tips
-	id := c.paymentRepository.Create(payment)
-	return id
+	id, err := c.paymentRepository.Create(payment)
+	return id, err
 }

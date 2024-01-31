@@ -41,6 +41,10 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 		return
 	}
 
-	id := h.paymentController.Create(payment.toPayment())
+	id, err := h.paymentController.Create(payment.toPayment())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusAccepted, gin.H{"id": id})
 }

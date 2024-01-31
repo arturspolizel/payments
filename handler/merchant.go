@@ -20,8 +20,8 @@ func NewMerchantHandler(merchantController interfaces.MerchantController, router
 }
 
 func (h *MerchantHandler) SetRouters() {
-	h.router.GET("/:id", h.GetMerchant)
-	h.router.POST("/", h.CreateMerchant)
+	h.router.GET("/merchant/:id", h.GetMerchant)
+	h.router.POST("/merchant/", h.CreateMerchant)
 }
 
 func (h *MerchantHandler) GetMerchant(c *gin.Context) {
@@ -36,11 +36,10 @@ func (h *MerchantHandler) CreateMerchant(c *gin.Context) {
 		return
 	}
 
-	if !merchant.Currency.Validate() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Currency must be a valid ISO 4217 3-letter code"})
+	id, err := h.merchantController.Create(merchant.toMerchant())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	id := h.merchantController.Create(merchant.toMerchant())
 	c.JSON(http.StatusAccepted, gin.H{"id": id})
 }

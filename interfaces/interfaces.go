@@ -3,21 +3,21 @@ package interfaces
 import "github.com/arturspolizel/payments/model"
 
 type PaymentController interface {
-	Get(id uint) model.Payment
-	Create(payment model.Payment) uint
+	Get(uint) (model.Payment, error)
+	Create(model.Payment) (uint, error)
 }
 
 type PaymentRepository interface {
-	Get(id uint) model.Payment
-	Create(payment model.Payment) uint
+	Get(uint) (model.Payment, error)
+	Create(model.Payment) (uint, error)
 }
 
 type MerchantController interface {
-	Get(id uint) model.Merchant
-	Create(payment model.Merchant) uint
+	Get(uint) (model.Merchant, error)
+	Create(model.Merchant) (uint, error)
 }
 
 type MerchantRepository interface {
-	Get(id uint) model.Merchant
-	Create(payment model.Merchant) uint
+	Get(uint) (model.Merchant, error)
+	Create(model.Merchant) (uint, error)
 }

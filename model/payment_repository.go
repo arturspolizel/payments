@@ -1,11 +1,8 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/rs/zerolog/log"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -13,16 +10,10 @@ type PaymentRepository struct {
 	database *gorm.DB
 }
 
-func NewPaymentRepository(host, user, password, databaseName, port string) *PaymentRepository {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, databaseName, port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not connect to database")
-	}
+func NewPaymentRepository(db *gorm.DB) *PaymentRepository {
 
 	// Migrate the schema
-	err = db.AutoMigrate(&Payment{})
+	err := db.AutoMigrate(&Payment{})
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not migrate database")
@@ -33,14 +24,14 @@ func NewPaymentRepository(host, user, password, databaseName, port string) *Paym
 	}
 }
 
-func (r *PaymentRepository) Get(id uint) Payment {
+func (r *PaymentRepository) Get(id uint) (Payment, error) {
 	payment := Payment{}
 	r.database.Select(&payment, id)
 
-	return payment
+	return payment, nil
 }
 
-func (r *PaymentRepository) Create(payment Payment) uint {
+func (r *PaymentRepository) Create(payment Payment) (uint, error) {
 	r.database.Create(&payment)
-	return payment.ID
+	return payment.ID, nil
 }

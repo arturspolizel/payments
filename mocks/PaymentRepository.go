@@ -12,40 +12,60 @@ type PaymentRepository struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: payment
-func (_m *PaymentRepository) Create(payment model.Payment) uint {
-	ret := _m.Called(payment)
+// Create provides a mock function with given fields: _a0
+func (_m *PaymentRepository) Create(_a0 model.Payment) (uint, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 uint
+	var r1 error
+	if rf, ok := ret.Get(0).(func(model.Payment) (uint, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(model.Payment) uint); ok {
-		r0 = rf(payment)
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(uint)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(model.Payment) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// Get provides a mock function with given fields: id
-func (_m *PaymentRepository) Get(id uint) model.Payment {
-	ret := _m.Called(id)
+// Get provides a mock function with given fields: _a0
+func (_m *PaymentRepository) Get(_a0 uint) (model.Payment, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
 	var r0 model.Payment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) (model.Payment, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(uint) model.Payment); ok {
-		r0 = rf(id)
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(model.Payment)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewPaymentRepository creates a new instance of PaymentRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -12,40 +12,60 @@ type MerchantController struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: payment
-func (_m *MerchantController) Create(payment model.Merchant) uint {
-	ret := _m.Called(payment)
+// Create provides a mock function with given fields: _a0
+func (_m *MerchantController) Create(_a0 model.Merchant) (uint, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 uint
+	var r1 error
+	if rf, ok := ret.Get(0).(func(model.Merchant) (uint, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(model.Merchant) uint); ok {
-		r0 = rf(payment)
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(uint)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(model.Merchant) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// Get provides a mock function with given fields: id
-func (_m *MerchantController) Get(id uint) model.Merchant {
-	ret := _m.Called(id)
+// Get provides a mock function with given fields: _a0
+func (_m *MerchantController) Get(_a0 uint) (model.Merchant, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
 	var r0 model.Merchant
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) (model.Merchant, error)); ok {
+		return rf(_a0)
+	}
 	if rf, ok := ret.Get(0).(func(uint) model.Merchant); ok {
-		r0 = rf(id)
+		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(model.Merchant)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewMerchantController creates a new instance of MerchantController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

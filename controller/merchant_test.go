@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -19,9 +20,10 @@ func TestMerchantController_Create(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		args args
-		want uint
+		name        string
+		args        args
+		want        uint
+		expectedErr error
 
 		on     func(*depFields)
 		assert func(*depFields)
@@ -35,13 +37,14 @@ func TestMerchantController_Create(t *testing.T) {
 					MaximumTransactionValue: pointer.Uint(100),
 				},
 			},
-			want: 1,
+			want:        1,
+			expectedErr: nil,
 			on: func(df *depFields) {
 				df.merchantRepo.Mock.On("Create", model.Merchant{
 					Name:                    "Test",
 					Active:                  true,
 					MaximumTransactionValue: pointer.Uint(100),
-				}).Return(uint(1))
+				}).Return(uint(1), nil)
 			},
 			assert: func(df *depFields) {
 				df.merchantRepo.AssertExpectations(t)
@@ -59,7 +62,7 @@ func TestMerchantController_Create(t *testing.T) {
 
 			controller := NewMerchantController(&depFields.merchantRepo)
 
-			if got := controller.Create(tt.args.merchant); got != tt.want {
+			if got, err := controller.Create(tt.args.merchant); got != tt.want && errors.Is(err, tt.expectedErr) {
 				t.Errorf("MerchantController.Create() = %v, want %v", got, tt.want)
 			}
 		})
@@ -72,9 +75,10 @@ func TestMerchantController_Get(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		args args
-		want model.Merchant
+		name        string
+		args        args
+		want        model.Merchant
+		expectedErr error
 
 		on     func(*depFields)
 		assert func(*depFields)
@@ -87,10 +91,11 @@ func TestMerchantController_Get(t *testing.T) {
 			want: model.Merchant{
 				ID: 1,
 			},
+			expectedErr: nil,
 			on: func(df *depFields) {
 				df.merchantRepo.Mock.On("Get", uint(1)).Return(model.Merchant{
 					ID: 1,
-				})
+				}, nil)
 			},
 			assert: func(df *depFields) {
 				df.merchantRepo.AssertExpectations(t)
@@ -107,7 +112,7 @@ func TestMerchantController_Get(t *testing.T) {
 			defer tt.assert(&depFields)
 
 			controller := NewMerchantController(&depFields.merchantRepo)
-			if got := controller.Get(tt.args.id); !reflect.DeepEqual(got, tt.want) {
+			if got, err := controller.Get(tt.args.id); !reflect.DeepEqual(got, tt.want) && errors.Is(err, tt.expectedErr) {
 				t.Errorf("MerchantController.Get() = %v, want %v", got, tt.want)
 			}
 		})

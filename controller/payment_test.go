@@ -38,25 +38,27 @@ func TestGet(t *testing.T) {
 	assert := assert.New(t)
 	mockRepo := mocks.NewPaymentRepository(t)
 
-	mockRepo.Mock.On("Get", uint(1)).Return(mockedPayment)
+	mockRepo.Mock.On("Get", uint(1)).Return(mockedPayment, nil)
 	defer mockRepo.AssertExpectations(t)
 
 	paymentController := NewPaymentController(mockRepo)
-	returnPayment := paymentController.Get(1)
+	returnPayment, err := paymentController.Get(1)
 
 	mockRepo.AssertExpectations(t)
 	assert.Equal(mockedPayment, returnPayment)
+	assert.Empty(err)
 }
 
 func TestCreate(t *testing.T) {
 	assert := assert.New(t)
 	mockRepo := mocks.NewPaymentRepository(t)
 
-	mockRepo.Mock.On("Create", paymentWithTotal).Return(uint(1))
+	mockRepo.Mock.On("Create", paymentWithTotal).Return(uint(1), nil)
 	defer mockRepo.AssertExpectations(t)
 
 	paymentController := NewPaymentController(mockRepo)
-	id := paymentController.Create(paymentFromRequest)
+	id, err := paymentController.Create(paymentFromRequest)
 
 	assert.Equal(uint(1), id)
+	assert.Empty(err)
 }
