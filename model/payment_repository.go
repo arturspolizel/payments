@@ -1,6 +1,8 @@
 package model
 
 import (
+	"errors"
+
 	"github.com/rs/zerolog/log"
 
 	"gorm.io/gorm"
@@ -26,12 +28,23 @@ func NewPaymentRepository(db *gorm.DB) *PaymentRepository {
 
 func (r *PaymentRepository) Get(id uint) (Payment, error) {
 	payment := Payment{}
-	r.database.Select(&payment, id)
+	result := r.database.First(&payment, id)
+
+	if result.Error != nil {
+		//log
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return payment, &ErrDatabaseNotFound{
+				entityType: "payment",
+				entityId:   id,
+			}
+		}
+		return payment, result.Error
+	}
 
 	return payment, nil
 }
 
 func (r *PaymentRepository) Create(payment Payment) (uint, error) {
-	r.database.Create(&payment)
-	return payment.ID, nil
+	result := r.database.Create(&payment)
+	return payment.ID, result.Error
 }

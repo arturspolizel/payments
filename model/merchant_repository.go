@@ -1,6 +1,8 @@
 package model
 
 import (
+	"errors"
+
 	"github.com/rs/zerolog/log"
 
 	"gorm.io/gorm"
@@ -26,12 +28,23 @@ func NewMerchantRepository(db *gorm.DB) *MerchantRepository {
 
 func (r *MerchantRepository) Get(id uint) (Merchant, error) {
 	merchant := Merchant{}
-	r.database.Select(&merchant, id)
+	result := r.database.First(&merchant, id)
+
+	if result.Error != nil {
+		//log
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return merchant, &ErrDatabaseNotFound{
+				entityType: "merchant",
+				entityId:   id,
+			}
+		}
+		return merchant, result.Error
+	}
 
 	return merchant, nil
 }
 
 func (r *MerchantRepository) Create(merchant Merchant) (uint, error) {
-	r.database.Create(&merchant)
-	return merchant.ID, nil
+	result := r.database.Create(&merchant)
+	return merchant.ID, result.Error
 }

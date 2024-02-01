@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/arturspolizel/payments/interfaces"
+	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,7 +29,24 @@ func (h *MerchantHandler) SetRouters() {
 }
 
 func (h *MerchantHandler) GetMerchant(c *gin.Context) {
-	h.merchantController.Get(c.GetUint("id"))
+	id, err := utils.PathUint(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Couldn't parse id parameter: %s", err.Error())})
+		return
+	}
+
+	merchant, err := h.merchantController.Get(uint(id))
+	if err != nil {
+		var notFoundErr *model.ErrDatabaseNotFound
+		if errors.As(err, &notFoundErr) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		return
+	}
+	c.JSON(http.StatusAccepted, merchant)
 }
 
 func (h *MerchantHandler) CreateMerchant(c *gin.Context) {
