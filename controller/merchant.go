@@ -20,6 +20,11 @@ func (c *MerchantController) Get(id uint) (model.Merchant, error) {
 	return merchant, err
 }
 
+func (c *MerchantController) List(startId, pageSize uint) ([]model.Merchant, error) {
+	merchants, err := c.merchantRepository.List(startId, pageSize)
+	return merchants, err
+}
+
 func (c *MerchantController) Create(merchant model.Merchant) (uint, error) {
 	id, err := c.merchantRepository.Create(merchant)
 	return id, err

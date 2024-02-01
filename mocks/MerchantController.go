@@ -68,6 +68,36 @@ func (_m *MerchantController) Get(_a0 uint) (model.Merchant, error) {
 	return r0, r1
 }
 
+// List provides a mock function with given fields: _a0, _a1
+func (_m *MerchantController) List(_a0 uint, _a1 uint) ([]model.Merchant, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []model.Merchant
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint, uint) ([]model.Merchant, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(uint, uint) []model.Merchant); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Merchant)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(uint, uint) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewMerchantController creates a new instance of MerchantController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMerchantController(t interface {

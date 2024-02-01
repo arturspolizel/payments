@@ -44,6 +44,18 @@ func (r *MerchantRepository) Get(id uint) (Merchant, error) {
 	return merchant, nil
 }
 
+func (r *MerchantRepository) List(startId, pageSize uint) ([]Merchant, error) {
+	var merchants []Merchant
+	result := r.database.Scopes(Paginate(startId, pageSize)).Find(&merchants)
+
+	if result.Error != nil {
+		// log error
+		return merchants, result.Error
+	}
+
+	return merchants, nil
+}
+
 func (r *MerchantRepository) Create(merchant Merchant) (uint, error) {
 	result := r.database.Create(&merchant)
 	return merchant.ID, result.Error

@@ -14,10 +14,12 @@ type PaymentRepository interface {
 
 type MerchantController interface {
 	Get(uint) (model.Merchant, error)
+	List(uint, uint) ([]model.Merchant, error)
 	Create(model.Merchant) (uint, error)
 }
 
 type MerchantRepository interface {
 	Get(uint) (model.Merchant, error)
+	List(uint, uint) ([]model.Merchant, error)
 	Create(model.Merchant) (uint, error)
 }
