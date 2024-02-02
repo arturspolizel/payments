@@ -118,3 +118,57 @@ func TestMerchantController_Get(t *testing.T) {
 		})
 	}
 }
+
+func TestMerchantController_List(t *testing.T) {
+	type args struct {
+		startId  uint
+		pageSize uint
+	}
+
+	tests := []struct {
+		name        string
+		args        args
+		want        []model.Merchant
+		expectedErr error
+
+		on     func(*depFields)
+		assert func(*depFields)
+	}{
+		{
+			name: "Success",
+			args: args{
+				startId:  1,
+				pageSize: 10,
+			},
+			want: []model.Merchant{
+				{ID: 1},
+				{ID: 2},
+			},
+			expectedErr: nil,
+			on: func(df *depFields) {
+				df.merchantRepo.Mock.On("List", uint(1), uint(10)).Return([]model.Merchant{
+					{ID: 1},
+					{ID: 2},
+				}, nil)
+			},
+			assert: func(df *depFields) {
+				df.merchantRepo.AssertExpectations(t)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			depFields := depFields{
+				merchantRepo: *mocks.NewMerchantRepository(t),
+			}
+
+			tt.on(&depFields)
+			defer tt.assert(&depFields)
+
+			controller := NewMerchantController(&depFields.merchantRepo)
+			if got, err := controller.List(tt.args.startId, tt.args.pageSize); !reflect.DeepEqual(got, tt.want) && errors.Is(err, tt.expectedErr) {
+				t.Errorf("MerchantController.List() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

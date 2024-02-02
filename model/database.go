@@ -11,6 +11,6 @@ func Paginate(startId, pageSize uint) func(db *gorm.DB) *gorm.DB {
 			pageSize = 10
 		}
 
-		return db.Where("id > ?", startId).Limit(int(pageSize))
+		return db.Where("id >= ?", startId).Limit(int(pageSize))
 	}
 }

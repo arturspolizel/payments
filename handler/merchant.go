@@ -25,6 +25,7 @@ func NewMerchantHandler(merchantController interfaces.MerchantController, router
 
 func (h *MerchantHandler) SetRouters() {
 	h.router.GET("/merchant/:id", h.GetMerchant)
+	h.router.GET("/merchant", h.ListMerchants)
 	h.router.POST("/merchant/", h.CreateMerchant)
 }
 
@@ -47,6 +48,36 @@ func (h *MerchantHandler) GetMerchant(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusAccepted, merchant)
+}
+
+func (h *MerchantHandler) ListMerchants(c *gin.Context) {
+	var query PaginationRequest
+	err := c.ShouldBindQuery(&query)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid query parameters: %s", err.Error())})
+		return
+	}
+
+	merchants, err := h.merchantController.List(query.StartId, query.PageSize)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	var paginatedReturn PaginationResponse[model.Merchant]
+	if len(merchants) > 0 {
+		paginatedReturn = PaginationResponse[model.Merchant]{
+			StartId: merchants[0].ID,
+			EndId:   merchants[len(merchants)-1].ID,
+			Count:   uint(len(merchants)),
+			Data:    merchants,
+		}
+	} else {
+		paginatedReturn = PaginationResponse[model.Merchant]{
+			Data: merchants,
+		}
+	}
+
+	c.JSON(http.StatusAccepted, paginatedReturn)
 }
 
 func (h *MerchantHandler) CreateMerchant(c *gin.Context) {
