@@ -1,14 +1,20 @@
 package interfaces
 
-import "github.com/arturspolizel/payments/model"
+import (
+	"time"
+
+	"github.com/arturspolizel/payments/model"
+)
 
 type PaymentController interface {
 	Get(uint) (model.Payment, error)
+	List(uint, uint, time.Time, time.Time) ([]model.Payment, error)
 	Create(model.Payment) (uint, error)
 }
 
 type PaymentRepository interface {
 	Get(uint) (model.Payment, error)
+	List(uint, uint, time.Time, time.Time) ([]model.Payment, error)
 	Create(model.Payment) (uint, error)
 }
 

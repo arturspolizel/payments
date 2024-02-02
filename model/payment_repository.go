@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -42,6 +43,19 @@ func (r *PaymentRepository) Get(id uint) (Payment, error) {
 	}
 
 	return payment, nil
+}
+
+func (r *PaymentRepository) List(startId, pageSize uint, startDate, endDate time.Time) ([]Payment, error) {
+	var payments []Payment
+	// TODO: early loading?
+	result := r.database.Scopes(Paginate(startId, pageSize)).Where("created_at between ? and ?", startDate, endDate).Find(&payments)
+
+	if result.Error != nil {
+		// log error
+		return payments, result.Error
+	}
+
+	return payments, nil
 }
 
 func (r *PaymentRepository) Create(payment Payment) (uint, error) {

@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/arturspolizel/payments/interfaces"
 	"github.com/arturspolizel/payments/model"
 )
@@ -18,6 +20,11 @@ func NewPaymentController(paymentRepository interfaces.PaymentRepository) *Payme
 func (c *PaymentController) Get(id uint) (model.Payment, error) {
 	payment, err := c.paymentRepository.Get(id)
 	return payment, err
+}
+
+func (c *PaymentController) List(startId, pageSize uint, startDate, endDate time.Time) ([]model.Payment, error) {
+	payments, err := c.paymentRepository.List(startId, pageSize, startDate, endDate)
+	return payments, err
 }
 
 func (c *PaymentController) Create(payment model.Payment) (uint, error) {

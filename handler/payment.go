@@ -25,6 +25,7 @@ func NewPaymentHandler(paymentController interfaces.PaymentController, router *g
 
 func (h *PaymentHandler) SetRouters() {
 	h.router.GET("/:id", h.GetPayment)
+	h.router.GET("/", h.ListPayments)
 	h.router.POST("/", h.CreatePayment)
 }
 
@@ -47,7 +48,37 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 
 		return
 	}
-	c.JSON(http.StatusAccepted, payment)
+	c.JSON(http.StatusOK, payment)
+}
+
+func (h *PaymentHandler) ListPayments(c *gin.Context) {
+	var query PaymentListRequest
+	err := c.ShouldBindQuery(&query)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid query parameters: %s", err.Error())})
+		return
+	}
+
+	payments, err := h.paymentController.List(query.StartId, query.PageSize, query.StartDate, query.EndDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	var paginatedReturn PaginationResponse[model.Payment]
+	if len(payments) > 0 {
+		paginatedReturn = PaginationResponse[model.Payment]{
+			StartId: payments[0].ID,
+			EndId:   payments[len(payments)-1].ID,
+			Count:   uint(len(payments)),
+			Data:    payments,
+		}
+	} else {
+		paginatedReturn = PaginationResponse[model.Payment]{
+			Data: payments,
+		}
+	}
+
+	c.JSON(http.StatusOK, paginatedReturn)
 }
 
 func (h *PaymentHandler) CreatePayment(c *gin.Context) {
@@ -68,5 +99,5 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, gin.H{"id": id})
+	c.JSON(http.StatusOK, gin.H{"id": id})
 }
