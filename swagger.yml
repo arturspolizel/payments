@@ -1,0 +1,245 @@
+openapi: '3.0.2'
+info:
+  title: Payments
+  version: '1.0'
+servers:
+  - url: https://localhost:8080/payments
+paths:
+  /:
+    get:
+      description: Returns a list payment entities using a date filter and merchant id. Response uses keyset pagination.
+      parameters:
+        - $ref: '#/components/parameters/StartId'
+        - $ref: '#/components/parameters/PageSize'
+        - name: startDate
+          in: query
+          description: Starting date for the filter, inclusive, using ISO8601.
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: Ending date for the filter, inclusive, using ISO8601. Default is current time.
+          schema:
+            type: string
+        - name: merchantId
+          in: query
+          description: Merchant id to filter for.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Payment"
+          description: OK
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                merchantId: 
+                  type: integer
+                amount: 
+                  type: integer
+                tips: 
+                  type: integer
+                currency: 
+                  type: string
+              required: 
+                    - merchantId
+                    - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: integer
+          description: OK
+        '500':
+          $ref: "#/components/responses/500Error"
+  /{id}:
+    get:
+      description: Returns a single payment entity by its id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        '404':
+          $ref: "#/components/responses/400Error"
+        '500':
+          $ref: "#/components/responses/500Error"
+  /merchant:
+      get:
+        description: Returns a list of merchant entities. Response uses keyset pagination.
+        parameters:
+          - $ref: '#/components/parameters/StartId'
+          - $ref: '#/components/parameters/PageSize'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  allOf:
+                    - $ref: "#/components/schemas/PaginatedResponse"
+                    - type: object
+                      properties:
+                        data:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/Merchant"
+          '500':
+            $ref: "#/components/responses/500Error"
+      post:
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  active:
+                    type: string
+                  maximumTransactionValue:
+                    type: integer
+                required: 
+                    - name
+                    - active
+        responses:
+          '200':
+            description: OK
+          '400':
+            $ref: '#/components/responses/400Error'
+          '500':
+            $ref: '#/components/responses/400Error'
+  /merchant/{id}:
+    get:
+      description: Returns a single merchant entity by its id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Merchant"
+        '404':
+          $ref: "#/components/responses/400Error"
+        '500':
+          $ref: "#/components/responses/500Error"
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    PaginatedResponse:
+      type: object
+      properties:
+        startId: 
+          type: integer
+        count: 
+          type: integer
+        data: 
+          type: array 
+          items: {}   #  any type of items
+    Error:
+      type: object
+      properties:
+        error: 
+          description: Error message from server
+          type: string
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        merchant:
+          type: object
+          properties:
+            schema: 
+              $ref: "#/components/schemas/Merchant"
+        amount:
+          type: integer
+        tips:
+          type: integer
+        total:
+          type: integer
+        status:
+          type: string
+        method:
+          type: string
+        currency:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    Merchant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+            type: string
+        active:
+            type: boolean
+        maximumTransactionValue:
+            type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+  parameters:
+    StartId:
+      name: limit
+      in: query
+      description: Beginning id for keyset pagination
+      schema:
+        type: integer
+    PageSize:
+      name: offset
+      in: query
+      description: Max size of keyset pagination result list. Default is 10.
+      schema:
+        type: integer
+  responses:
+    400Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string
+    500Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string
