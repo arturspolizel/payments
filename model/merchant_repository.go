@@ -34,8 +34,8 @@ func (r *MerchantRepository) Get(id uint) (Merchant, error) {
 		//log
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return merchant, &ErrDatabaseNotFound{
-				entityType: "merchant",
-				entityId:   id,
+				EntityType: "merchant",
+				EntityId:   id,
 			}
 		}
 		return merchant, result.Error

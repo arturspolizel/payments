@@ -149,9 +149,10 @@ paths:
 
 components:
   securitySchemes:
-    BasicAuth:
+    bearerAuth:            
       type: http
-      scheme: basic
+      scheme: bearer
+      bearerFormat: JWT  
 
   schemas:
     PaginatedResponse:

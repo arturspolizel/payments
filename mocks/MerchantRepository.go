@@ -68,9 +68,9 @@ func (_m *MerchantRepository) Get(_a0 uint) (model.Merchant, error) {
 	return r0, r1
 }
 
-// List provides a mock function with given fields: _a0, _a1
-func (_m *MerchantRepository) List(_a0 uint, _a1 uint) ([]model.Merchant, error) {
-	ret := _m.Called(_a0, _a1)
+// List provides a mock function with given fields: startId, pageSize
+func (_m *MerchantRepository) List(startId uint, pageSize uint) ([]model.Merchant, error) {
+	ret := _m.Called(startId, pageSize)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -79,10 +79,10 @@ func (_m *MerchantRepository) List(_a0 uint, _a1 uint) ([]model.Merchant, error)
 	var r0 []model.Merchant
 	var r1 error
 	if rf, ok := ret.Get(0).(func(uint, uint) ([]model.Merchant, error)); ok {
-		return rf(_a0, _a1)
+		return rf(startId, pageSize)
 	}
 	if rf, ok := ret.Get(0).(func(uint, uint) []model.Merchant); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(startId, pageSize)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.Merchant)
@@ -90,7 +90,7 @@ func (_m *MerchantRepository) List(_a0 uint, _a1 uint) ([]model.Merchant, error)
 	}
 
 	if rf, ok := ret.Get(1).(func(uint, uint) error); ok {
-		r1 = rf(_a0, _a1)
+		r1 = rf(startId, pageSize)
 	} else {
 		r1 = ret.Error(1)
 	}

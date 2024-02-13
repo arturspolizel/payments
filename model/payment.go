@@ -11,9 +11,25 @@ type Payment struct {
 	Total      int           `json:"total"`
 	Status     PaymentStatus `json:"paymentStatus"`
 	Method     PaymentMethod `json:"paymentMethod"`
+	Refunds    []Refund      `json:"refunds"`
 	Currency   Currency      `json:"currency"`
 	CreatedAt  time.Time     `json:"createdAt"`
 	UpdatedAt  time.Time     `json:"updatedAt"`
+}
+
+type Refund struct {
+	ID        uint `json:"id"`
+	PaymentId uint `json:"paymentId"`
+	Amount    int  `json:"amount"`
+	Tips      int  `json:"tips"`
+	Total     int  `json:"total"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+var RefundAllowedStatuses = []PaymentStatus{
+	Captured,
 }
 
 type Currency string

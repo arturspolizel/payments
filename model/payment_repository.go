@@ -35,8 +35,8 @@ func (r *PaymentRepository) Get(id uint) (Payment, error) {
 		//log
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return payment, &ErrDatabaseNotFound{
-				entityType: "payment",
-				entityId:   id,
+				EntityType: "payment",
+				EntityId:   id,
 			}
 		}
 		return payment, result.Error
@@ -48,7 +48,12 @@ func (r *PaymentRepository) Get(id uint) (Payment, error) {
 func (r *PaymentRepository) List(startId, pageSize uint, startDate, endDate time.Time) ([]Payment, error) {
 	var payments []Payment
 	// TODO: early loading?
-	result := r.database.Scopes(Paginate(startId, pageSize)).Where("created_at between ? and ?", startDate, endDate).Find(&payments)
+	result := r.database.Model(&Payment{}).
+		Preload("Merchant").
+		Preload("Refunds").
+		Scopes(Paginate(startId, pageSize)).
+		Where("created_at between ? and ?", startDate, endDate).
+		Find(&payments)
 
 	if result.Error != nil {
 		// log error
@@ -61,4 +66,9 @@ func (r *PaymentRepository) List(startId, pageSize uint, startDate, endDate time
 func (r *PaymentRepository) Create(payment Payment) (uint, error) {
 	result := r.database.Create(&payment)
 	return payment.ID, result.Error
+}
+
+func (r *PaymentRepository) Update(payment Payment) error {
+	result := r.database.Save(&payment)
+	return result.Error
 }

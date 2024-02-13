@@ -47,7 +47,7 @@ func (h *MerchantHandler) GetMerchant(c *gin.Context) {
 
 		return
 	}
-	c.JSON(http.StatusAccepted, merchant)
+	c.JSON(http.StatusOK, merchant)
 }
 
 func (h *MerchantHandler) ListMerchants(c *gin.Context) {
@@ -77,7 +77,7 @@ func (h *MerchantHandler) ListMerchants(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusAccepted, paginatedReturn)
+	c.JSON(http.StatusOK, paginatedReturn)
 }
 
 func (h *MerchantHandler) CreateMerchant(c *gin.Context) {
@@ -93,5 +93,5 @@ func (h *MerchantHandler) CreateMerchant(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, gin.H{"id": id})
+	c.JSON(http.StatusOK, gin.H{"id": id})
 }
