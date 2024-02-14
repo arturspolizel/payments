@@ -27,6 +27,10 @@ func (h *PaymentHandler) SetRouters() {
 	h.router.GET("/:id", h.GetPayment)
 	h.router.GET("/", h.ListPayments)
 	h.router.POST("/", h.CreatePayment)
+	h.router.POST("/{id}/authorize", h.AuthorizePayment)
+	h.router.POST("/{id}/capture", h.CapturePayment)
+	h.router.POST("/{id}/refund", h.RefundPayment)
+	h.router.POST("/{id}/void", h.VoidPayment)
 }
 
 func (h *PaymentHandler) GetPayment(c *gin.Context) {
@@ -140,15 +144,10 @@ func (h *PaymentHandler) CapturePayment(c *gin.Context) {
 	err = h.paymentController.Capture(id, transaction.Amount, transaction.Tips)
 
 	if err != nil {
-		var notFoundErr *model.ErrDatabaseNotFound
-		if errors.As(err, &notFoundErr) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-
+		writePaymentError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, nil)
 }
 
@@ -170,7 +169,6 @@ func (h *PaymentHandler) RefundPayment(c *gin.Context) {
 
 	if err != nil {
 		writePaymentError(c, err)
-
 		return
 	}
 	c.JSON(http.StatusOK, nil)
@@ -186,15 +184,10 @@ func (h *PaymentHandler) VoidPayment(c *gin.Context) {
 	err = h.paymentController.Void(id)
 
 	if err != nil {
-		var notFoundErr *model.ErrDatabaseNotFound
-		if errors.As(err, &notFoundErr) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-
+		writePaymentError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, nil)
 }
 
