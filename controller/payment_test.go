@@ -182,6 +182,31 @@ func TestPaymentController_Capture(t *testing.T) {
 				pd.paymentRepo.AssertExpectations(t)
 			},
 		},
+		{
+			name: "Invalid status",
+			args: args{
+				id:     1,
+				amount: 200,
+				tips:   200,
+			},
+			want:    1,
+			wantErr: &model.ErrInvalidPaymentStatus{},
+			on: func(pd *paymentDeps) {
+				pd.paymentRepo.Mock.On("Get", uint(1)).
+					Return(model.Payment{
+						ID:         1,
+						MerchantId: uint(1),
+						Amount:     200,
+						Tips:       200,
+						Currency:   model.USD,
+						Total:      400,
+						Status:     model.Captured,
+					}, nil)
+			},
+			assert: func(pd *paymentDeps) {
+				pd.paymentRepo.AssertExpectations(t)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -251,6 +276,31 @@ func TestPaymentController_Refund(t *testing.T) {
 				pd.paymentRepo.AssertExpectations(t)
 			},
 		},
+		{
+			name: "Invalid status",
+			args: args{
+				id:     1,
+				amount: 200,
+				tips:   200,
+			},
+			want:    1,
+			wantErr: &model.ErrInvalidPaymentStatus{},
+			on: func(pd *paymentDeps) {
+				pd.paymentRepo.Mock.On("Get", uint(1)).
+					Return(model.Payment{
+						ID:         1,
+						MerchantId: uint(1),
+						Amount:     200,
+						Tips:       200,
+						Currency:   model.USD,
+						Total:      400,
+						Status:     model.Authorized,
+					}, nil)
+			},
+			assert: func(pd *paymentDeps) {
+				pd.paymentRepo.AssertExpectations(t)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -303,6 +353,29 @@ func TestPaymentController_Void(t *testing.T) {
 					Total:      200,
 					Status:     model.Void,
 				}).Return(nil)
+			},
+			assert: func(pd *paymentDeps) {
+				pd.paymentRepo.AssertExpectations(t)
+			},
+		},
+		{
+			name: "Invalid status",
+			args: args{
+				id: 1,
+			},
+			want:    1,
+			wantErr: &model.ErrInvalidPaymentStatus{},
+			on: func(pd *paymentDeps) {
+				pd.paymentRepo.Mock.On("Get", uint(1)).
+					Return(model.Payment{
+						ID:         1,
+						MerchantId: uint(1),
+						Amount:     200,
+						Tips:       200,
+						Currency:   model.USD,
+						Total:      400,
+						Status:     model.Captured,
+					}, nil)
 			},
 			assert: func(pd *paymentDeps) {
 				pd.paymentRepo.AssertExpectations(t)
