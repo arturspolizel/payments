@@ -165,31 +165,21 @@ func (_m *PaymentController) Refund(id uint, amount int, tips int) error {
 }
 
 // Void provides a mock function with given fields: id
-func (_m *PaymentController) Void(id uint) (uint, error) {
+func (_m *PaymentController) Void(id uint) error {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Void")
 	}
 
-	var r0 uint
-	var r1 error
-	if rf, ok := ret.Get(0).(func(uint) (uint, error)); ok {
-		return rf(id)
-	}
-	if rf, ok := ret.Get(0).(func(uint) uint); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint) error); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(uint)
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // NewPaymentController creates a new instance of PaymentController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

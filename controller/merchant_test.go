@@ -10,7 +10,7 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-type depFields struct {
+type merchantDeps struct {
 	merchantRepo mocks.MerchantRepository
 }
 
@@ -25,8 +25,8 @@ func TestMerchantController_Create(t *testing.T) {
 		want        uint
 		expectedErr error
 
-		on     func(*depFields)
-		assert func(*depFields)
+		on     func(*merchantDeps)
+		assert func(*merchantDeps)
 	}{
 		{
 			name: "Success",
@@ -39,21 +39,21 @@ func TestMerchantController_Create(t *testing.T) {
 			},
 			want:        1,
 			expectedErr: nil,
-			on: func(df *depFields) {
+			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("Create", model.Merchant{
 					Name:                    "Test",
 					Active:                  true,
 					MaximumTransactionValue: pointer.Uint(100),
 				}).Return(uint(1), nil)
 			},
-			assert: func(df *depFields) {
+			assert: func(df *merchantDeps) {
 				df.merchantRepo.AssertExpectations(t)
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			depFields := depFields{
+			depFields := merchantDeps{
 				merchantRepo: *mocks.NewMerchantRepository(t),
 			}
 
@@ -80,8 +80,8 @@ func TestMerchantController_Get(t *testing.T) {
 		want        model.Merchant
 		expectedErr error
 
-		on     func(*depFields)
-		assert func(*depFields)
+		on     func(*merchantDeps)
+		assert func(*merchantDeps)
 	}{
 		{
 			name: "Success",
@@ -92,19 +92,19 @@ func TestMerchantController_Get(t *testing.T) {
 				ID: 1,
 			},
 			expectedErr: nil,
-			on: func(df *depFields) {
+			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("Get", uint(1)).Return(model.Merchant{
 					ID: 1,
 				}, nil)
 			},
-			assert: func(df *depFields) {
+			assert: func(df *merchantDeps) {
 				df.merchantRepo.AssertExpectations(t)
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			depFields := depFields{
+			depFields := merchantDeps{
 				merchantRepo: *mocks.NewMerchantRepository(t),
 			}
 
@@ -131,8 +131,8 @@ func TestMerchantController_List(t *testing.T) {
 		want        []model.Merchant
 		expectedErr error
 
-		on     func(*depFields)
-		assert func(*depFields)
+		on     func(*merchantDeps)
+		assert func(*merchantDeps)
 	}{
 		{
 			name: "Success",
@@ -145,20 +145,20 @@ func TestMerchantController_List(t *testing.T) {
 				{ID: 2},
 			},
 			expectedErr: nil,
-			on: func(df *depFields) {
+			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("List", uint(1), uint(10)).Return([]model.Merchant{
 					{ID: 1},
 					{ID: 2},
 				}, nil)
 			},
-			assert: func(df *depFields) {
+			assert: func(df *merchantDeps) {
 				df.merchantRepo.AssertExpectations(t)
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			depFields := depFields{
+			depFields := merchantDeps{
 				merchantRepo: *mocks.NewMerchantRepository(t),
 			}
 

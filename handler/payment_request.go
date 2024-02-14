@@ -13,6 +13,11 @@ type PaymentCreateRequest struct {
 	Currency   model.Currency `json:"currency" binding:"required"`
 }
 
+type PaymentTransactionRequest struct {
+	Amount int `json:"amount" binding:"required"`
+	Tips   int `json:"tips" binding:"required"`
+}
+
 type PaymentListRequest struct {
 	PaginationRequest
 	StartDate time.Time `json:"startDate" form:"startDate" binding:"required"`

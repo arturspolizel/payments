@@ -146,7 +146,92 @@ paths:
           $ref: "#/components/responses/400Error"
         '500':
           $ref: "#/components/responses/500Error"
-
+  /authorize:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                merchantId: 
+                  type: integer
+                amount: 
+                  type: integer
+                tips: 
+                  type: integer
+                currency: 
+                  type: string
+              required: 
+                    - merchantId
+                    - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: integer
+          description: OK
+        '500':
+          $ref: "#/components/responses/500Error"
+  /{id}/capture:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                tips: 
+                  type: integer
+              required: 
+                    - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: integer
+          description: OK
+        '500':
+          $ref: "#/components/responses/500Error"
+  /{id}/refund:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount: 
+                  type: integer
+                tips: 
+                  type: integer
+              required: 
+                    - amount
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: integer
+          description: OK
+        '500':
+          $ref: "#/components/responses/500Error"
 components:
   securitySchemes:
     bearerAuth:            

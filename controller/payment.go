@@ -59,6 +59,7 @@ func (c *PaymentController) Capture(id uint, amount, tips int) error {
 	payment.Tips = tips
 	payment.Amount = amount
 	payment.Total = amount + tips
+	payment.Status = model.Captured
 
 	err = c.paymentRepository.Update(payment)
 	return err
@@ -70,13 +71,15 @@ func (c *PaymentController) Refund(id uint, amount, tips int) error {
 		return err
 	}
 
-	if slices.Contains(model.RefundAllowedStatuses, payment.Status) {
+	if !slices.Contains(model.RefundAllowedStatuses, payment.Status) {
 		err = &model.ErrInvalidPaymentStatus{
 			Id:              id,
 			AllowedStatuses: model.RefundAllowedStatuses,
 		}
 		return err
 	}
+
+	//TODO: create refund and add to slice
 
 	err = c.paymentRepository.Update(payment)
 	return err

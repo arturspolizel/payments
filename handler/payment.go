@@ -101,3 +101,111 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"id": id})
 }
+
+func (h *PaymentHandler) AuthorizePayment(c *gin.Context) {
+	payment := PaymentCreateRequest{}
+
+	if err := c.ShouldBindJSON(&payment); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !payment.Currency.Validate() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Currency must be a valid ISO 4217 3-letter code"})
+		return
+	}
+
+	id, err := h.paymentController.Authorize(payment.toPayment())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": id})
+}
+
+func (h *PaymentHandler) CapturePayment(c *gin.Context) {
+	id, err := utils.PathUint(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Couldn't parse id parameter: %s", err.Error())})
+		return
+	}
+
+	transaction := PaymentTransactionRequest{}
+
+	if err := c.ShouldBindJSON(&transaction); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.paymentController.Capture(id, transaction.Amount, transaction.Tips)
+
+	if err != nil {
+		var notFoundErr *model.ErrDatabaseNotFound
+		if errors.As(err, &notFoundErr) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		return
+	}
+	c.JSON(http.StatusOK, nil)
+}
+
+func (h *PaymentHandler) RefundPayment(c *gin.Context) {
+	id, err := utils.PathUint(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Couldn't parse id parameter: %s", err.Error())})
+		return
+	}
+
+	transaction := PaymentTransactionRequest{}
+
+	if err := c.ShouldBindJSON(&transaction); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.paymentController.Refund(id, transaction.Amount, transaction.Tips)
+
+	if err != nil {
+		writePaymentError(c, err)
+
+		return
+	}
+	c.JSON(http.StatusOK, nil)
+}
+
+func (h *PaymentHandler) VoidPayment(c *gin.Context) {
+	id, err := utils.PathUint(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Couldn't parse id parameter: %s", err.Error())})
+		return
+	}
+
+	err = h.paymentController.Void(id)
+
+	if err != nil {
+		var notFoundErr *model.ErrDatabaseNotFound
+		if errors.As(err, &notFoundErr) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		return
+	}
+	c.JSON(http.StatusOK, nil)
+}
+
+func writePaymentError(c *gin.Context, err error) {
+	var notFoundErr *model.ErrDatabaseNotFound
+	var invalidStatusErr *model.ErrInvalidPaymentStatus
+	if errors.As(err, &notFoundErr) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else if errors.As(err, &invalidStatusErr) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
