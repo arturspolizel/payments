@@ -262,15 +262,12 @@ func TestPaymentController_Refund(t *testing.T) {
 						Total:      200,
 						Status:     model.Captured,
 					}, nil)
-				pd.paymentRepo.Mock.On("Update", model.Payment{ //TODO: add refund list
-					ID:         1,
-					MerchantId: uint(1),
-					Amount:     100,
-					Tips:       100,
-					Currency:   model.USD,
-					Total:      200,
-					Status:     model.Captured,
-				}).Return(nil)
+				pd.paymentRepo.Mock.On("CreateRefund", model.Refund{
+					PaymentId: 1,
+					Amount:    100,
+					Tips:      100,
+					Total:     200,
+				}).Return(uint(1), nil)
 			},
 			assert: func(pd *paymentDeps) {
 				pd.paymentRepo.AssertExpectations(t)
@@ -295,6 +292,31 @@ func TestPaymentController_Refund(t *testing.T) {
 						Currency:   model.USD,
 						Total:      400,
 						Status:     model.Authorized,
+					}, nil)
+			},
+			assert: func(pd *paymentDeps) {
+				pd.paymentRepo.AssertExpectations(t)
+			},
+		},
+		{
+			name: "Invalid amount",
+			args: args{
+				id:     1,
+				amount: 200,
+				tips:   200,
+			},
+			want:    1,
+			wantErr: &model.ErrInvalidPaymentStatus{},
+			on: func(pd *paymentDeps) {
+				pd.paymentRepo.Mock.On("Get", uint(1)).
+					Return(model.Payment{
+						ID:         1,
+						MerchantId: uint(1),
+						Amount:     100,
+						Tips:       100,
+						Currency:   model.USD,
+						Total:      400,
+						Status:     model.Captured,
 					}, nil)
 			},
 			assert: func(pd *paymentDeps) {

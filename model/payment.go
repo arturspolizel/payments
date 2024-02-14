@@ -32,6 +32,17 @@ var RefundAllowedStatuses = []PaymentStatus{
 	Captured,
 }
 
+func (p *Payment) GetRefundableAmount() (int, int) {
+	refundableAmount := p.Amount
+	refundableTips := p.Tips
+	for _, refund := range p.Refunds {
+		refundableAmount -= refund.Amount
+		refundableTips -= refund.Tips
+	}
+
+	return refundableAmount, refundableTips
+}
+
 type Currency string
 
 const (

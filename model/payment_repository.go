@@ -68,6 +68,11 @@ func (r *PaymentRepository) Create(payment Payment) (uint, error) {
 	return payment.ID, result.Error
 }
 
+func (r *PaymentRepository) CreateRefund(refund Refund) (uint, error) {
+	result := r.database.Create(&refund)
+	return refund.ID, result.Error
+}
+
 func (r *PaymentRepository) Update(payment Payment) error {
 	result := r.database.Save(&payment)
 	return result.Error

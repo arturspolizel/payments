@@ -42,6 +42,34 @@ func (_m *PaymentRepository) Create(_a0 model.Payment) (uint, error) {
 	return r0, r1
 }
 
+// CreateRefund provides a mock function with given fields: refund
+func (_m *PaymentRepository) CreateRefund(refund model.Refund) (uint, error) {
+	ret := _m.Called(refund)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateRefund")
+	}
+
+	var r0 uint
+	var r1 error
+	if rf, ok := ret.Get(0).(func(model.Refund) (uint, error)); ok {
+		return rf(refund)
+	}
+	if rf, ok := ret.Get(0).(func(model.Refund) uint); ok {
+		r0 = rf(refund)
+	} else {
+		r0 = ret.Get(0).(uint)
+	}
+
+	if rf, ok := ret.Get(1).(func(model.Refund) error); ok {
+		r1 = rf(refund)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with given fields: _a0
 func (_m *PaymentRepository) Get(_a0 uint) (model.Payment, error) {
 	ret := _m.Called(_a0)

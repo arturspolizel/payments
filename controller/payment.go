@@ -79,9 +79,25 @@ func (c *PaymentController) Refund(id uint, amount, tips int) error {
 		return err
 	}
 
-	//TODO: create refund and add to slice
+	refundableAmount, refundableTips := payment.GetRefundableAmount()
+	if amount > refundableAmount || tips > refundableTips {
+		err = &model.ErrInvalidTransactionAmount{
+			Id:     id,
+			Amount: refundableAmount,
+			Tips:   refundableTips,
+		}
+		return err
+	}
 
-	err = c.paymentRepository.Update(payment)
+	//TODO: create refund and add to slice
+	refund := model.Refund{
+		PaymentId: id,
+		Amount:    amount,
+		Tips:      tips,
+		Total:     amount + tips,
+	}
+
+	_, err = c.paymentRepository.CreateRefund(refund)
 	return err
 }
 

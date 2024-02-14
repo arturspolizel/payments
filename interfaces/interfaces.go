@@ -21,6 +21,7 @@ type PaymentRepository interface {
 	Update(model.Payment) error
 	List(startId, pageSize uint, startDate, endDate time.Time) ([]model.Payment, error)
 	Create(model.Payment) (uint, error)
+	CreateRefund(refund model.Refund) (uint, error)
 }
 
 type MerchantController interface {
