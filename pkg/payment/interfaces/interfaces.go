@@ -3,7 +3,7 @@ package interfaces
 import (
 	"time"
 
-	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/pkg/payment/model"
 )
 
 type PaymentController interface {

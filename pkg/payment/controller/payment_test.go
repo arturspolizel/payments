@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/arturspolizel/payments/mocks"
-	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/pkg/payment/model"
 	"github.com/stretchr/testify/assert"
 )
 

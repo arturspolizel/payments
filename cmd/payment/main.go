@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/arturspolizel/payments/controller"
-	"github.com/arturspolizel/payments/handler"
-	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/pkg/payment/controller"
+	"github.com/arturspolizel/payments/pkg/payment/handler"
+	"github.com/arturspolizel/payments/pkg/payment/model"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

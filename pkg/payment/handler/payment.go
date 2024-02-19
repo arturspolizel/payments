@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/arturspolizel/payments/interfaces"
-	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/pkg/payment/interfaces"
+	"github.com/arturspolizel/payments/pkg/payment/model"
 	"github.com/arturspolizel/payments/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -27,10 +27,10 @@ func (h *PaymentHandler) SetRouters() {
 	h.router.GET("/:id", h.GetPayment)
 	h.router.GET("/", h.ListPayments)
 	h.router.POST("/", h.CreatePayment)
-	h.router.POST("/{id}/authorize", h.AuthorizePayment)
-	h.router.POST("/{id}/capture", h.CapturePayment)
-	h.router.POST("/{id}/refund", h.RefundPayment)
-	h.router.POST("/{id}/void", h.VoidPayment)
+	h.router.POST("/authorize", h.AuthorizePayment)
+	h.router.POST("/:id/capture", h.CapturePayment)
+	h.router.POST("/:id/refund", h.RefundPayment)
+	h.router.POST("/:id/void", h.VoidPayment)
 }
 
 func (h *PaymentHandler) GetPayment(c *gin.Context) {

@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/arturspolizel/payments/model"
+import "github.com/arturspolizel/payments/pkg/payment/model"
 
 type MerchantCreateRequest struct {
 	Name                    string `json:"name" binding:"required"`

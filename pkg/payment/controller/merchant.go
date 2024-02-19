@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"github.com/arturspolizel/payments/interfaces"
-	"github.com/arturspolizel/payments/model"
+	"github.com/arturspolizel/payments/pkg/payment/interfaces"
+	"github.com/arturspolizel/payments/pkg/payment/model"
 )
 
 type MerchantController struct {

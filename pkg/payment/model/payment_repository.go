@@ -16,7 +16,7 @@ type PaymentRepository struct {
 func NewPaymentRepository(db *gorm.DB) *PaymentRepository {
 
 	// Migrate the schema
-	err := db.AutoMigrate(&Payment{})
+	err := db.AutoMigrate(&Payment{}, &Refund{})
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not migrate database")
