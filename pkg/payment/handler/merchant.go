@@ -38,7 +38,7 @@ func (h *MerchantHandler) GetMerchant(c *gin.Context) {
 
 	merchant, err := h.merchantController.Get(uint(id))
 	if err != nil {
-		var notFoundErr *model.ErrDatabaseNotFound
+		var notFoundErr *utils.ErrDatabaseNotFound
 		if errors.As(err, &notFoundErr) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {

@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	"github.com/arturspolizel/payments/utils"
 	"github.com/rs/zerolog/log"
 
 	"gorm.io/gorm"
@@ -33,7 +34,7 @@ func (r *MerchantRepository) Get(id uint) (Merchant, error) {
 	if result.Error != nil {
 		//log
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return merchant, &ErrDatabaseNotFound{
+			return merchant, &utils.ErrDatabaseNotFound{
 				EntityType: "merchant",
 				EntityId:   id,
 			}

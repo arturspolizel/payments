@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/arturspolizel/payments/utils"
 	"github.com/rs/zerolog/log"
 
 	"gorm.io/gorm"
@@ -34,7 +35,7 @@ func (r *PaymentRepository) Get(id uint) (Payment, error) {
 	if result.Error != nil {
 		//log
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return payment, &ErrDatabaseNotFound{
+			return payment, &utils.ErrDatabaseNotFound{
 				EntityType: "payment",
 				EntityId:   id,
 			}

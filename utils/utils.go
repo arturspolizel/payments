@@ -2,6 +2,7 @@ package utils
 
 import (
 	"log"
+	"math/rand"
 	"strconv"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -30,4 +31,14 @@ func NewMockDB() (*gorm.DB, sqlmock.Sqlmock) {
 func PathUint(c *gin.Context, path string) (uint, error) {
 	param, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	return uint(param), err
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

@@ -43,7 +43,7 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 	payment, err := h.paymentController.Get(id)
 
 	if err != nil {
-		var notFoundErr *model.ErrDatabaseNotFound
+		var notFoundErr *utils.ErrDatabaseNotFound
 		if errors.As(err, &notFoundErr) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
@@ -192,7 +192,7 @@ func (h *PaymentHandler) VoidPayment(c *gin.Context) {
 }
 
 func writePaymentError(c *gin.Context, err error) {
-	var notFoundErr *model.ErrDatabaseNotFound
+	var notFoundErr *utils.ErrDatabaseNotFound
 	var invalidStatusErr *model.ErrInvalidPaymentStatus
 	if errors.As(err, &notFoundErr) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
