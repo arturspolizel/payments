@@ -24,3 +24,12 @@ func (ucr *UserCreateRequest) toUser() model.User {
 
 	return user
 }
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type ValidateRequest struct {
+	Code string `json:"code" binding:"required"`
+}

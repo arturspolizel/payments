@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/arturspolizel/payments/pkg/payment/model"
+	"github.com/arturspolizel/payments/utils"
 )
 
 type PaymentController interface {
@@ -34,4 +35,10 @@ type MerchantRepository interface {
 	Get(uint) (model.Merchant, error)
 	List(startId, pageSize uint) ([]model.Merchant, error)
 	Create(model.Merchant) (uint, error)
+}
+
+type JwtProcessor interface {
+	NewToken(utils.TokenContext) (string, error)
+
+	Validate(string) (utils.TokenContext, error)
 }

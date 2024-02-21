@@ -1,19 +1,22 @@
 package handler
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/arturspolizel/payments/pkg/auth/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
-	paymentController interfaces.UserController
-	router            *gin.RouterGroup
+	userController interfaces.UserController
+	router         *gin.RouterGroup
 }
 
 func NewUserHandler(paymentController interfaces.UserController, router *gin.RouterGroup) *UserHandler {
 	return &UserHandler{
-		paymentController: paymentController,
-		router:            router,
+		userController: paymentController,
+		router:         router,
 	}
 }
 
@@ -24,13 +27,49 @@ func (h *UserHandler) SetRouters() {
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
-	panic("Not implemented")
+	login := LoginRequest{}
+
+	if err := c.ShouldBindJSON(&login); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := h.userController.Login(login.Email, login.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": id})
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
-	panic("Not implemented")
+	userRequest := UserCreateRequest{}
+	if err := c.ShouldBindJSON(&userRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := h.userController.Create(userRequest.toUser(), userRequest.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": id})
 }
 
 func (h *UserHandler) Validate(c *gin.Context) {
-	panic("Not implemented")
+	var query ValidateRequest
+	err := c.ShouldBindQuery(&query)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid query parameters: %s", err.Error())})
+		return
+	}
+
+	err = h.userController.Validate(query.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, nil)
 }

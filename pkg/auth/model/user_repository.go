@@ -77,3 +77,26 @@ func (r UserRepository) CreateValidationEmail(email ValidationEmail) (uint, erro
 	result := r.database.Create(&email)
 	return email.ID, result.Error
 }
+
+func (r UserRepository) GetEmailByCode(code string) (ValidationEmail, error) {
+	email := ValidationEmail{}
+	result := r.database.Where("code = ?", email).First(&email)
+
+	if result.Error != nil {
+		//log
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return email, &utils.ErrDatabaseNotFound{
+				EntityType: "validationEmail",
+				EntityId:   0,
+			}
+		}
+		return email, result.Error
+	}
+
+	return email, nil
+}
+
+func (r UserRepository) UpdateValidationEmail(email ValidationEmail) error {
+	result := r.database.Save(&email)
+	return result.Error
+}
