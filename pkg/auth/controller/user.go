@@ -97,7 +97,6 @@ func (c UserController) Login(email string, password string) (string, error) {
 		return "", &model.ErrAuthenticationFailed{}
 	}
 
-	// TODO: Create jwt token, return info
 	token, err := c.jwtProcessor.NewToken(utils.TokenContext{
 		Email:      user.Email,
 		MerchantId: user.MerchantId,

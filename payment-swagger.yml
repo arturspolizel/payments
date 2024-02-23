@@ -125,7 +125,7 @@ paths:
           '400':
             $ref: '#/components/responses/400Error'
           '500':
-            $ref: '#/components/responses/400Error'
+            $ref: '#/components/responses/500Error'
   /merchant/{id}:
     get:
       description: Returns a single merchant entity by its id

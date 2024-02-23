@@ -6,6 +6,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type JwtProcessor interface {
+	NewToken(context TokenContext) (string, error)
+	Validate(tokenString string) (TokenContext, error)
+}
+
 // TODO: Add group
 type TokenContext struct {
 	jwt.RegisteredClaims
@@ -13,27 +18,27 @@ type TokenContext struct {
 	MerchantId uint
 }
 
-type JwtProcessor struct {
+type JwtProcessorWithKey struct {
 	key        []byte
 	signingKey []byte
 	algorithm  jwt.SigningMethod
 }
 
-func NewJwtProcessor(key []byte, algorithm jwt.SigningMethod) *JwtProcessor {
-	return &JwtProcessor{
+func NewJwtProcessor(key []byte, algorithm jwt.SigningMethod) *JwtProcessorWithKey {
+	return &JwtProcessorWithKey{
 		key:       key,
 		algorithm: algorithm,
 	}
 }
 
-func NewJwtProcessorWithPrivate(key, signingKey []byte, algorithm jwt.SigningMethod) *JwtProcessor {
-	return &JwtProcessor{
+func NewJwtProcessorWithPrivate(key, signingKey []byte, algorithm jwt.SigningMethod) *JwtProcessorWithKey {
+	return &JwtProcessorWithKey{
 		key:       key,
 		algorithm: algorithm,
 	}
 }
 
-func (j *JwtProcessor) NewToken(context TokenContext) (string, error) {
+func (j *JwtProcessorWithKey) NewToken(context TokenContext) (string, error) {
 	if len(j.signingKey) == 0 {
 		return "", fmt.Errorf("Must provide a signing key for token creation")
 	}
@@ -41,7 +46,7 @@ func (j *JwtProcessor) NewToken(context TokenContext) (string, error) {
 	return token.SignedString(j.signingKey)
 }
 
-func (j *JwtProcessor) Validate(tokenString string) (TokenContext, error) {
+func (j *JwtProcessorWithKey) Validate(tokenString string) (TokenContext, error) {
 	context := TokenContext{}
 	token, err := jwt.ParseWithClaims(tokenString, &context, func(token *jwt.Token) (interface{}, error) {
 		return j.key, nil

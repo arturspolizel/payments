@@ -24,8 +24,8 @@ func main() {
 	log.Info().Msg("Running server")
 
 	// TODO: Abstract this out to model package, use env variables
-	var key = []byte("testKey")
-	var signingKey = []byte("signingKey")
+	var key = []byte("MCowBQYDK2VwAyEAOpQ9mFP3TcwIzYfAt4DBoOfFyaXAi59ti2rFe4umtNA=")
+	var signingKey = []byte("MC4CAQAwBQYDK2VwBCIEIM0RLoe/ASJtOWt3QUZ0bd6J0rGMI4m/LrKxueAL95AV")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", "localhost", "postgres", "123", "payments", "5432")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -36,7 +36,7 @@ func main() {
 	userRepo := model.NewUserRepository(db)
 	emailAdapter := controller.NewEmailAdapter()
 	jwtProcessor := utils.NewJwtProcessorWithPrivate(key, signingKey, jwt.SigningMethodEdDSA)
-	userController := controller.NewUserController(userRepo, emailAdapter, *jwtProcessor)
+	userController := controller.NewUserController(userRepo, emailAdapter, jwtProcessor)
 
 	engine := gin.Default()
 	router := engine.Group("/auth")

@@ -1,0 +1,164 @@
+openapi: '3.0.2'
+info:
+  title: Payments
+  version: '1.0'
+servers:
+  - url: http://localhost:8080/payment
+paths:
+  /login:
+    post:
+      description: Logs an user in using email and password. Returns a string-formatted JWT token
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  password:
+                    type: string
+                required: 
+                    - email
+                    - password
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+          description: OK
+        '401':
+            $ref: '#/components/responses/401Error'
+  /register:
+    post:
+      description: Create a new user for the system. Further email validation is required before login is possible.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: 
+                    type: string  
+          description: OK
+        '400':
+            $ref: '#/components/responses/400Error'
+        '500':
+            $ref: '#/components/responses/500Error'
+  /validate:
+      post:
+        description: Validates an email for a new user.
+        parameters:
+          - name: code
+            in: query
+            description: Validation code from email
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: OK
+          '400':
+            $ref: '#/components/responses/400Error'
+          '500':
+            $ref: '#/components/responses/500Error'
+components:
+  securitySchemes:
+    bearerAuth:            
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  
+
+  schemas:
+    PaginatedResponse:
+      type: object
+      properties:
+        startId: 
+          type: integer
+        count: 
+          type: integer
+        data: 
+          type: array 
+          items: {}   #  any type of items
+    Error:
+      type: object
+      properties:
+        error: 
+          description: Error message from server
+          type: string
+    UserCreateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        merchantId:
+          type: integer
+        password:
+          type: string
+      required:
+        - email
+        - name
+        - password
+
+  parameters:
+    StartId:
+      name: startId
+      in: query
+      description: Beginning id for keyset pagination
+      schema:
+        type: integer
+    PageSize:
+      name: pageSize
+      in: query
+      description: Max size of keyset pagination result list. Default is 10.
+      schema:
+        type: integer
+  responses:
+    400Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string
+    401Error:
+      description: Authorization failed
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string
+    403Error:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string
+    500Error:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              error:
+                type: string

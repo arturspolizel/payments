@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/arturspolizel/payments/pkg/auth/interfaces"
+	"github.com/arturspolizel/payments/pkg/auth/model"
+	"github.com/arturspolizel/payments/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,12 +37,21 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	id, err := h.userController.Login(login.Email, login.Password)
+	token, err := h.userController.Login(login.Email, login.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var notFoundErr *utils.ErrDatabaseNotFound
+		var unauthorizedErr *model.ErrAuthenticationFailed
+		var invalidStatusErr *model.ErrInvalidUserStatus
+		if errors.As(err, &notFoundErr) || errors.As(err, &unauthorizedErr) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		} else if errors.As(err, &invalidStatusErr) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"id": id})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
@@ -67,7 +79,16 @@ func (h *UserHandler) Validate(c *gin.Context) {
 
 	err = h.userController.Validate(query.Code)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		var notFoundErr *utils.ErrDatabaseNotFound
+		var invalidCode *model.ErrInvalidEmailCode
+		var invalidStatusErr *model.ErrInvalidUserStatus
+		if errors.As(err, &notFoundErr) || errors.As(err, &invalidCode) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else if errors.As(err, &invalidStatusErr) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
