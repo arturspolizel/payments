@@ -7,6 +7,7 @@ import (
 	"github.com/alexedwards/argon2id"
 	"github.com/arturspolizel/payments/mocks"
 	"github.com/arturspolizel/payments/pkg/auth/model"
+	"github.com/arturspolizel/payments/utils"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -15,6 +16,9 @@ type userDeps struct {
 	emailAdapter   mocks.EmailAdapter
 	jwtProcessor   mocks.JwtProcessor
 }
+
+var testPassword = "test"
+var passwordHash, _ = argon2id.CreateHash(testPassword, argon2id.DefaultParams)
 
 func TestUserController_Create(t *testing.T) {
 	type args struct {
@@ -38,7 +42,7 @@ func TestUserController_Create(t *testing.T) {
 					MerchantId: 1,
 					Email:      "test@test.com",
 				},
-				password: "test",
+				password: testPassword,
 			},
 			want:    1,
 			wantErr: nil,
@@ -75,6 +79,147 @@ func TestUserController_Create(t *testing.T) {
 
 			if got, err := controller.Create(tt.args.user, tt.args.password); got != tt.want && errors.Is(err, tt.wantErr) {
 				t.Errorf("MerchantController.Create() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUserController_Login(t *testing.T) {
+	type args struct {
+		email    string
+		password string
+	}
+	tests := []struct {
+		name    string
+		c       UserController
+		args    args
+		want    string
+		wantErr error
+
+		on     func(*userDeps)
+		assert func(*userDeps)
+	}{
+		{
+			name: "Success",
+			args: args{
+				email:    "test@test.com",
+				password: testPassword,
+			},
+			want:    "mockToken",
+			wantErr: nil,
+			on: func(ud *userDeps) {
+				ud.userRepository.Mock.On("GetByEmail", "test@test.com").Return(model.User{
+					ID:           1,
+					Name:         "test",
+					MerchantId:   1,
+					Email:        "test@test.com",
+					Status:       model.Active,
+					PasswordHash: passwordHash,
+				}, nil)
+				ud.jwtProcessor.Mock.On("NewToken", utils.TokenContext{
+					Email:      "test@test.com",
+					MerchantId: 1,
+				}).Return("mockToken", nil)
+			},
+			assert: func(ud *userDeps) {
+				ud.emailAdapter.AssertExpectations(t)
+				ud.jwtProcessor.AssertExpectations(t)
+				ud.userRepository.AssertExpectations(t)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			depFields := userDeps{
+				userRepository: *mocks.NewUserRepository(t),
+				emailAdapter:   *mocks.NewEmailAdapter(t),
+				jwtProcessor:   *mocks.NewJwtProcessor(t),
+			}
+			tt.on(&depFields)
+			defer tt.assert(&depFields)
+
+			controller := NewUserController(&depFields.userRepository, &depFields.emailAdapter, &depFields.jwtProcessor)
+
+			got, err := controller.Login(tt.args.email, tt.args.password)
+			if (err != nil) && !errors.Is(err, tt.wantErr) {
+				t.Errorf("UserController.Login() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("UserController.Login() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUserController_Validate(t *testing.T) {
+	type args struct {
+		code string
+	}
+	tests := []struct {
+		name    string
+		c       UserController
+		args    args
+		wantErr error
+
+		on     func(*userDeps)
+		assert func(*userDeps)
+	}{
+		{
+			name: "Success",
+			args: args{
+				code: "mockCode",
+			},
+			wantErr: nil,
+			on: func(ud *userDeps) {
+				ud.userRepository.Mock.On("GetEmailByCode", "mockCode").Return(model.ValidationEmail{
+					ID:        1,
+					UserId:    1,
+					Code:      "mockCode",
+					Validated: false,
+				}, nil)
+				ud.userRepository.Mock.On("Get", uint(1)).Return(model.User{
+					ID:         1,
+					Name:       "test",
+					MerchantId: 1,
+					Email:      "test@test.com",
+					Status:     model.PendingActivation,
+				}, nil)
+				ud.userRepository.Mock.On("Update", model.User{
+					ID:         1,
+					Name:       "test",
+					MerchantId: 1,
+					Email:      "test@test.com",
+					Status:     model.Active,
+				}).Return(nil)
+				ud.userRepository.Mock.On("UpdateValidationEmail", model.ValidationEmail{
+					ID:        1,
+					UserId:    1,
+					Code:      "mockCode",
+					Validated: true,
+				}).Return(nil)
+			},
+			assert: func(ud *userDeps) {
+				ud.emailAdapter.AssertExpectations(t)
+				ud.jwtProcessor.AssertExpectations(t)
+				ud.userRepository.AssertExpectations(t)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			depFields := userDeps{
+				userRepository: *mocks.NewUserRepository(t),
+				emailAdapter:   *mocks.NewEmailAdapter(t),
+				jwtProcessor:   *mocks.NewJwtProcessor(t),
+			}
+			tt.on(&depFields)
+			defer tt.assert(&depFields)
+
+			controller := NewUserController(&depFields.userRepository, &depFields.emailAdapter, &depFields.jwtProcessor)
+
+			if err := controller.Validate(tt.args.code); !errors.Is(err, tt.wantErr) {
+				t.Errorf("UserController.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

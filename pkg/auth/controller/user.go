@@ -38,6 +38,7 @@ func (c *UserController) Create(user model.User, password string) (uint, error) 
 		return 0, err
 	}
 	user.PasswordHash = hash
+	user.Status = model.PendingActivation
 	id, err := c.userRepository.Create(user)
 	if err != nil {
 		// Check for existing user?
