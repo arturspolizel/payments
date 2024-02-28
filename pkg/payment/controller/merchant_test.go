@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 
 	"github.com/arturspolizel/payments/mocks"
 	"github.com/arturspolizel/payments/pkg/payment/model"
+	"github.com/arturspolizel/payments/utils"
 	"github.com/xorcare/pointer"
 )
 
@@ -20,10 +20,10 @@ func TestMerchantController_Create(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		args        args
-		want        uint
-		expectedErr error
+		name    string
+		args    args
+		want    uint
+		wantErr error
 
 		on     func(*merchantDeps)
 		assert func(*merchantDeps)
@@ -37,8 +37,8 @@ func TestMerchantController_Create(t *testing.T) {
 					MaximumTransactionValue: pointer.Uint(100),
 				},
 			},
-			want:        1,
-			expectedErr: nil,
+			want:    1,
+			wantErr: nil,
 			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("Create", model.Merchant{
 					Name:                    "Test",
@@ -62,7 +62,7 @@ func TestMerchantController_Create(t *testing.T) {
 
 			controller := NewMerchantController(&depFields.merchantRepo)
 
-			if got, err := controller.Create(tt.args.merchant); got != tt.want && errors.Is(err, tt.expectedErr) {
+			if got, err := controller.Create(tt.args.merchant); got != tt.want && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("MerchantController.Create() = %v, want %v", got, tt.want)
 			}
 		})
@@ -75,10 +75,10 @@ func TestMerchantController_Get(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		args        args
-		want        model.Merchant
-		expectedErr error
+		name    string
+		args    args
+		want    model.Merchant
+		wantErr error
 
 		on     func(*merchantDeps)
 		assert func(*merchantDeps)
@@ -91,7 +91,7 @@ func TestMerchantController_Get(t *testing.T) {
 			want: model.Merchant{
 				ID: 1,
 			},
-			expectedErr: nil,
+			wantErr: nil,
 			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("Get", uint(1)).Return(model.Merchant{
 					ID: 1,
@@ -112,7 +112,7 @@ func TestMerchantController_Get(t *testing.T) {
 			defer tt.assert(&depFields)
 
 			controller := NewMerchantController(&depFields.merchantRepo)
-			if got, err := controller.Get(tt.args.id); !reflect.DeepEqual(got, tt.want) && errors.Is(err, tt.expectedErr) {
+			if got, err := controller.Get(tt.args.id); !reflect.DeepEqual(got, tt.want) && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("MerchantController.Get() = %v, want %v", got, tt.want)
 			}
 		})
@@ -126,10 +126,10 @@ func TestMerchantController_List(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		args        args
-		want        []model.Merchant
-		expectedErr error
+		name    string
+		args    args
+		want    []model.Merchant
+		wantErr error
 
 		on     func(*merchantDeps)
 		assert func(*merchantDeps)
@@ -144,7 +144,7 @@ func TestMerchantController_List(t *testing.T) {
 				{ID: 1},
 				{ID: 2},
 			},
-			expectedErr: nil,
+			wantErr: nil,
 			on: func(df *merchantDeps) {
 				df.merchantRepo.Mock.On("List", uint(1), uint(10)).Return([]model.Merchant{
 					{ID: 1},
@@ -166,7 +166,7 @@ func TestMerchantController_List(t *testing.T) {
 			defer tt.assert(&depFields)
 
 			controller := NewMerchantController(&depFields.merchantRepo)
-			if got, err := controller.List(tt.args.startId, tt.args.pageSize); !reflect.DeepEqual(got, tt.want) && errors.Is(err, tt.expectedErr) {
+			if got, err := controller.List(tt.args.startId, tt.args.pageSize); !reflect.DeepEqual(got, tt.want) && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("MerchantController.List() = %v, want %v", got, tt.want)
 			}
 		})

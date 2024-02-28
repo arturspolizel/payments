@@ -1,8 +1,8 @@
 build payment:
-	go build -o cmd/payment/main /cmd/payment/main.go
+	go build -o cmd/payment/main cmd/payment/main.go
 
 build auth:
-	go build -o cmd/auth/main /cmd/auth/main.go
+	go build -o cmd/auth/main cmd/auth/main.go
 run payment:
 	go run cmd/payment/main.go
 

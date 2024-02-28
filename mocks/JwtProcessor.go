@@ -12,9 +12,9 @@ type JwtProcessor struct {
 	mock.Mock
 }
 
-// NewToken provides a mock function with given fields: _a0
-func (_m *JwtProcessor) NewToken(_a0 utils.TokenContext) (string, error) {
-	ret := _m.Called(_a0)
+// NewToken provides a mock function with given fields: context
+func (_m *JwtProcessor) NewToken(context utils.TokenContext) (string, error) {
+	ret := _m.Called(context)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NewToken")
@@ -23,16 +23,16 @@ func (_m *JwtProcessor) NewToken(_a0 utils.TokenContext) (string, error) {
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(utils.TokenContext) (string, error)); ok {
-		return rf(_a0)
+		return rf(context)
 	}
 	if rf, ok := ret.Get(0).(func(utils.TokenContext) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(context)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	if rf, ok := ret.Get(1).(func(utils.TokenContext) error); ok {
-		r1 = rf(_a0)
+		r1 = rf(context)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -40,9 +40,9 @@ func (_m *JwtProcessor) NewToken(_a0 utils.TokenContext) (string, error) {
 	return r0, r1
 }
 
-// Validate provides a mock function with given fields: _a0
-func (_m *JwtProcessor) Validate(_a0 string) (utils.TokenContext, error) {
-	ret := _m.Called(_a0)
+// Validate provides a mock function with given fields: tokenString
+func (_m *JwtProcessor) Validate(tokenString string) (utils.TokenContext, error) {
+	ret := _m.Called(tokenString)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Validate")
@@ -51,16 +51,16 @@ func (_m *JwtProcessor) Validate(_a0 string) (utils.TokenContext, error) {
 	var r0 utils.TokenContext
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) (utils.TokenContext, error)); ok {
-		return rf(_a0)
+		return rf(tokenString)
 	}
 	if rf, ok := ret.Get(0).(func(string) utils.TokenContext); ok {
-		r0 = rf(_a0)
+		r0 = rf(tokenString)
 	} else {
 		r0 = ret.Get(0).(utils.TokenContext)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(_a0)
+		r1 = rf(tokenString)
 	} else {
 		r1 = ret.Error(1)
 	}

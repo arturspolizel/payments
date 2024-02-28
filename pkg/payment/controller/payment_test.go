@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/arturspolizel/payments/mocks"
 	"github.com/arturspolizel/payments/pkg/payment/model"
+	"github.com/arturspolizel/payments/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -130,7 +130,7 @@ func TestPaymentController_Authorize(t *testing.T) {
 
 			controller := NewPaymentController(&depFields.paymentRepo)
 			got, err := controller.Authorize(tt.args.payment)
-			if err != nil && errors.Is(err, tt.wantErr) {
+			if err != nil && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("PaymentController.Authorize() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -219,7 +219,7 @@ func TestPaymentController_Capture(t *testing.T) {
 
 			controller := NewPaymentController(&depFields.paymentRepo)
 			err := controller.Capture(tt.args.id, tt.args.amount, tt.args.tips)
-			if err != nil && errors.Is(err, tt.wantErr) {
+			if err != nil && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("PaymentController.Capture() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -306,7 +306,7 @@ func TestPaymentController_Refund(t *testing.T) {
 				tips:   200,
 			},
 			want:    1,
-			wantErr: &model.ErrInvalidPaymentStatus{},
+			wantErr: &model.ErrInvalidTransactionAmount{},
 			on: func(pd *paymentDeps) {
 				pd.paymentRepo.Mock.On("Get", uint(1)).
 					Return(model.Payment{
@@ -335,7 +335,7 @@ func TestPaymentController_Refund(t *testing.T) {
 
 			controller := NewPaymentController(&depFields.paymentRepo)
 			err := controller.Refund(tt.args.id, tt.args.amount, tt.args.tips)
-			if err != nil && errors.Is(err, tt.wantErr) {
+			if err != nil && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("PaymentController.Capture() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -415,7 +415,7 @@ func TestPaymentController_Void(t *testing.T) {
 
 			controller := NewPaymentController(&depFields.paymentRepo)
 			err := controller.Void(tt.args.id)
-			if err != nil && errors.Is(err, tt.wantErr) {
+			if err != nil && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("PaymentController.Capture() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

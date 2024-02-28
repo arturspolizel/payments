@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/alexedwards/argon2id"
@@ -77,7 +76,7 @@ func TestUserController_Create(t *testing.T) {
 
 			controller := NewUserController(&depFields.userRepository, &depFields.emailAdapter, &depFields.jwtProcessor)
 
-			if got, err := controller.Create(tt.args.user, tt.args.password); got != tt.want && errors.Is(err, tt.wantErr) {
+			if got, err := controller.Create(tt.args.user, tt.args.password); got != tt.want && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("MerchantController.Create() = %v, want %v", got, tt.want)
 			}
 		})
@@ -127,6 +126,54 @@ func TestUserController_Login(t *testing.T) {
 				ud.userRepository.AssertExpectations(t)
 			},
 		},
+		{
+			name: "Wrong password",
+			args: args{
+				email:    "test@test.com",
+				password: "wrong",
+			},
+			want:    "",
+			wantErr: &model.ErrAuthenticationFailed{},
+			on: func(ud *userDeps) {
+				ud.userRepository.Mock.On("GetByEmail", "test@test.com").Return(model.User{
+					ID:           1,
+					Name:         "test",
+					MerchantId:   1,
+					Email:        "test@test.com",
+					Status:       model.Active,
+					PasswordHash: passwordHash,
+				}, nil)
+			},
+			assert: func(ud *userDeps) {
+				ud.emailAdapter.AssertExpectations(t)
+				ud.jwtProcessor.AssertExpectations(t)
+				ud.userRepository.AssertExpectations(t)
+			},
+		},
+		{
+			name: "User not active",
+			args: args{
+				email:    "test@test.com",
+				password: testPassword,
+			},
+			want:    "",
+			wantErr: &model.ErrInvalidUserStatus{},
+			on: func(ud *userDeps) {
+				ud.userRepository.Mock.On("GetByEmail", "test@test.com").Return(model.User{
+					ID:           1,
+					Name:         "test",
+					MerchantId:   1,
+					Email:        "test@test.com",
+					Status:       model.PendingActivation,
+					PasswordHash: passwordHash,
+				}, nil)
+			},
+			assert: func(ud *userDeps) {
+				ud.emailAdapter.AssertExpectations(t)
+				ud.jwtProcessor.AssertExpectations(t)
+				ud.userRepository.AssertExpectations(t)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -141,7 +188,7 @@ func TestUserController_Login(t *testing.T) {
 			controller := NewUserController(&depFields.userRepository, &depFields.emailAdapter, &depFields.jwtProcessor)
 
 			got, err := controller.Login(tt.args.email, tt.args.password)
-			if (err != nil) && !errors.Is(err, tt.wantErr) {
+			if (err != nil) && !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("UserController.Login() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -218,7 +265,7 @@ func TestUserController_Validate(t *testing.T) {
 
 			controller := NewUserController(&depFields.userRepository, &depFields.emailAdapter, &depFields.jwtProcessor)
 
-			if err := controller.Validate(tt.args.code); !errors.Is(err, tt.wantErr) {
+			if err := controller.Validate(tt.args.code); !utils.CheckTestError(err, tt.wantErr) {
 				t.Errorf("UserController.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

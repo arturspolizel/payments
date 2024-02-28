@@ -2,7 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -40,7 +43,7 @@ func NewJwtProcessorWithPrivate(key, signingKey []byte, algorithm jwt.SigningMet
 
 func (j *JwtProcessorWithKey) NewToken(context TokenContext) (string, error) {
 	if len(j.signingKey) == 0 {
-		return "", fmt.Errorf("Must provide a signing key for token creation")
+		return "", fmt.Errorf("must provide a signing key for token creation")
 	}
 	token := jwt.NewWithClaims(j.algorithm, context)
 	return token.SignedString(j.signingKey)
@@ -61,4 +64,27 @@ func (j *JwtProcessorWithKey) Validate(tokenString string) (TokenContext, error)
 	}
 
 	return context, nil
+}
+
+func Logger(jwtProcessor JwtProcessor) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		bearerToken := strings.Split(c.Request.Header.Get("Authorization"), " ")
+
+		if len(bearerToken) != 2 || bearerToken[0] != "Bearer" {
+			// invalid token format
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format. Please use a Bearer schema."})
+		}
+		reqToken := bearerToken[1]
+
+		token, err := jwtProcessor.Validate(reqToken)
+		if err != nil {
+			// unauthorized
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature."})
+		}
+		// Set example variable
+		c.Set("token", token)
+
+		// before request
+		c.Next()
+	}
 }
