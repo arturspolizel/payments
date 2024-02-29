@@ -3,11 +3,13 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/arturspolizel/payments/pkg/auth/interfaces"
 	"github.com/arturspolizel/payments/pkg/auth/model"
 	"github.com/arturspolizel/payments/utils"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserController struct {
@@ -101,6 +103,11 @@ func (c UserController) Login(email string, password string) (string, error) {
 	token, err := c.jwtProcessor.NewToken(utils.TokenContext{
 		Email:      user.Email,
 		MerchantId: user.MerchantId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "http://localhost/payments/auth", // Refactor to use proper domain later
+			Subject:   user.Email,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		},
 	})
 
 	return token, err

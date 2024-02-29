@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -53,7 +54,7 @@ func (j *JwtProcessorWithKey) Validate(tokenString string) (TokenContext, error)
 	context := TokenContext{}
 	token, err := jwt.ParseWithClaims(tokenString, &context, func(token *jwt.Token) (interface{}, error) {
 		return j.key, nil
-	})
+	}, jwt.WithValidMethods([]string{j.algorithm.Alg()}))
 
 	if err != nil {
 		return TokenContext{}, err
@@ -61,6 +62,11 @@ func (j *JwtProcessorWithKey) Validate(tokenString string) (TokenContext, error)
 
 	if !token.Valid {
 		return TokenContext{}, fmt.Errorf("invalid jwt token")
+	}
+
+	expirationDate, err := token.Claims.GetExpirationTime()
+	if err != nil || time.Now().After(expirationDate.Time) {
+		return TokenContext{}, fmt.Errorf("token has expired, please login or refresh")
 	}
 
 	return context, nil

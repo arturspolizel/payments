@@ -2,11 +2,13 @@ package controller
 
 import (
 	"testing"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/arturspolizel/payments/mocks"
 	"github.com/arturspolizel/payments/pkg/auth/model"
 	"github.com/arturspolizel/payments/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -118,6 +120,11 @@ func TestUserController_Login(t *testing.T) {
 				ud.jwtProcessor.Mock.On("NewToken", utils.TokenContext{
 					Email:      "test@test.com",
 					MerchantId: 1,
+					RegisteredClaims: jwt.RegisteredClaims{
+						Issuer:    "http://localhost/payments/auth", //TODO: extract to correct domain
+						Subject:   "test@test.com",
+						ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+					},
 				}).Return("mockToken", nil)
 			},
 			assert: func(ud *userDeps) {
