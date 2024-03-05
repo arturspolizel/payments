@@ -98,7 +98,7 @@ func (j *JwtProcessorWithKey) Validate(tokenString string) (TokenContext, error)
 	return context, nil
 }
 
-func Logger(jwtProcessor JwtProcessor) gin.HandlerFunc {
+func JwtMiddleware(jwtProcessor JwtProcessor) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		bearerToken := strings.Split(c.Request.Header.Get("Authorization"), " ")
 
@@ -111,7 +111,7 @@ func Logger(jwtProcessor JwtProcessor) gin.HandlerFunc {
 		token, err := jwtProcessor.Validate(reqToken)
 		if err != nil {
 			// unauthorized
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature."})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature."})
 		}
 		// Set example variable
 		c.Set("token", token)
