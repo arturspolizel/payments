@@ -3,10 +3,11 @@ build payment:
 
 build auth:
 	go build -o cmd/auth/main cmd/auth/main.go
-run payment:
+
+run payment: build payment
 	go run cmd/payment/main.go
 
-run auth:
+run auth: build auth
 	go run cmd/auth/main.go
 
 mock: 

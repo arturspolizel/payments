@@ -80,7 +80,7 @@ func (r UserRepository) CreateValidationEmail(email ValidationEmail) (uint, erro
 
 func (r UserRepository) GetEmailByCode(code string) (ValidationEmail, error) {
 	email := ValidationEmail{}
-	result := r.database.Where("code = ?", email).First(&email)
+	result := r.database.Where("code = ?", code).First(&email)
 
 	if result.Error != nil {
 		//log

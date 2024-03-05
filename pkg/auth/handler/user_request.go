@@ -31,5 +31,5 @@ type LoginRequest struct {
 }
 
 type ValidateRequest struct {
-	Code string `json:"code" binding:"required"`
+	Code string `form:"code" binding:"required"`
 }

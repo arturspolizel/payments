@@ -3,7 +3,7 @@ info:
   title: Payments
   version: '1.0'
 servers:
-  - url: http://localhost:8080/payment
+  - url: http://localhost:8080/auth
 paths:
   /login:
     post:

@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"crypto/ed25519"
+	"encoding/asn1"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,6 +13,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type ed25519PrivKey struct {
+	Version          int
+	ObjectIdentifier struct {
+		ObjectIdentifier asn1.ObjectIdentifier
+	}
+	PrivateKey []byte
+}
+
+type ed25519PubKey struct {
+	OBjectIdentifier struct {
+		ObjectIdentifier asn1.ObjectIdentifier
+	}
+	PublicKey asn1.BitString
+}
+
 type JwtProcessor interface {
 	NewToken(context TokenContext) (string, error)
 	Validate(tokenString string) (TokenContext, error)
@@ -18,27 +36,35 @@ type JwtProcessor interface {
 // TODO: Add group
 type TokenContext struct {
 	jwt.RegisteredClaims
-	Email      string
-	MerchantId uint
+	Email      string `json:"email"`
+	MerchantId uint   `json:"merchantId"`
 }
 
 type JwtProcessorWithKey struct {
-	key        []byte
-	signingKey []byte
+	key        ed25519.PublicKey
+	signingKey ed25519.PrivateKey
 	algorithm  jwt.SigningMethod
 }
 
+// NewJwtProcessor creates a processor with a public key for validating tokens. Key must be
+// in PEM format
 func NewJwtProcessor(key []byte, algorithm jwt.SigningMethod) *JwtProcessorWithKey {
+	pubKey := decodePublicKey(key)
 	return &JwtProcessorWithKey{
-		key:       key,
+		key:       pubKey,
 		algorithm: algorithm,
 	}
 }
 
+// NewJwtProcessorWithPrivate creates a processor with a public and private key for validating and
+// signing tokens. Keys must be in PEM format.
 func NewJwtProcessorWithPrivate(key, signingKey []byte, algorithm jwt.SigningMethod) *JwtProcessorWithKey {
+	pubKey := decodePublicKey(key)
+	privKey := decodePrivateKey(signingKey)
 	return &JwtProcessorWithKey{
-		key:       key,
-		algorithm: algorithm,
+		key:        pubKey,
+		signingKey: privKey,
+		algorithm:  algorithm,
 	}
 }
 
@@ -93,4 +119,28 @@ func Logger(jwtProcessor JwtProcessor) gin.HandlerFunc {
 		// before request
 		c.Next()
 	}
+}
+
+func decodePrivateKey(key []byte) ed25519.PrivateKey {
+	// TODO: Support other algorithms
+	var block *pem.Block
+	block, _ = pem.Decode(key)
+
+	var asn1PrivKey ed25519PrivKey
+	asn1.Unmarshal(block.Bytes, &asn1PrivKey)
+
+	privateKey := ed25519.NewKeyFromSeed(asn1PrivKey.PrivateKey[2:])
+	return privateKey
+}
+
+func decodePublicKey(key []byte) ed25519.PublicKey {
+	// TODO: Support other algorithms
+	var block *pem.Block
+	block, _ = pem.Decode(key)
+
+	var asn1PubKey ed25519PubKey
+	asn1.Unmarshal(block.Bytes, &asn1PubKey)
+
+	publicKey := ed25519.PublicKey(asn1PubKey.PublicKey.Bytes)
+	return publicKey
 }
