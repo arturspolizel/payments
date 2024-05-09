@@ -4,6 +4,15 @@ build-payment:
 build-auth:
 	go build -o cmd/auth/main cmd/auth/main.go
 
+docker-payment:
+	docker build -t auth -f ./cmd/auth/Dockerfile .
+
+docker-auth:
+	docker build -t payment -f ./cmd/payment/Dockerfile .
+
+compose:
+	docker compose up
+
 payment: build-payment
 	go run cmd/payment/main.go
 

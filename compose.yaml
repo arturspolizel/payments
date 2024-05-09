@@ -1,0 +1,59 @@
+services:
+  db:
+    hostname: db
+    networks:
+      - mynet
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: payments
+    ports:
+      - 5432:5432
+
+  auth:
+    hostname: auth
+    networks:
+      - mynet
+    build:
+      dockerfile: ./cmd/auth/Dockerfile
+      context: .
+    ports:
+      - "8081:8080"
+    env_file:
+      - ./cmd/auth/auth.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  payment:
+    hostname: payment
+    networks:
+      - mynet
+    build:
+      dockerfile: ./cmd/payment/Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./cmd/payment/payment.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  mynet:
+    driver: bridge
